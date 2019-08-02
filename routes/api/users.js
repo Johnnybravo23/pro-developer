@@ -18,7 +18,7 @@ router.post('/register', (req, res) => {
     }).then(user => {
         if (user) {
             return res.status(400).json({
-                email: 'Email already exosts'
+                email: 'Email already exists'
             });
         } else {
             const avatar = gravatar.url(req.body.email, {
@@ -47,4 +47,34 @@ router.post('/register', (req, res) => {
     })
 });
 
+
+// creating the registration route
+router.post('/login', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    // find user by email
+    User.findOne({
+        email
+    }).then(user => {
+        //  check for user
+        if (!user) {
+            return res.status(404).json({
+                email: 'User not found'
+            })
+        }
+        // check the password
+        bcrypt.compare(password, user.password).then(isMatch => {
+            if (isMatch) {
+                res.json({
+                    msg: 'Success'
+                });
+            } else {
+                return res.status(400).json({
+                    password: 'Password incorrect'
+                });
+            }
+        });
+    });
+});
 module.exports = router;
